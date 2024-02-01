@@ -12,5 +12,5 @@ else
         echo "push to prod repo"
         
 	docker tag newimage:latest deepakramamoorthy/reactapplicationprod/reactapplicationdemo:1.0
-	docker push deepakramamoorthy/reactapplicationprod/reactapplicationdemo:1.`0
+	docker push deepakramamoorthy/reactapplicationprod/reactapplicationdemo:1.0
 fi
