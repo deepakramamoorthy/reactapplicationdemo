@@ -1,0 +1,66 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                // Get some code from a GitHub repository
+                 git branch: 'dev', url: "https://github.com/deepakramamoorthy/DevOps-Application-Deployment.git"
+
+            }
+
+            
+        }
+        
+        stage('dockerbuild') {
+            steps {
+                
+                sh 'chmod +x build.sh'
+                sh './build.sh'
+
+            }
+
+            
+        }
+        stage('dockerdeploy') {
+                   steps {
+            script {
+               branchName = sh(label: 'getBranchName', returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim()
+               echo branchName
+               
+               if (branchName == "dev") {
+                    echo "push to dev repo"
+      sh''' 
+       docker login -u deepakramamoorthy -p Dee9578461426@@@ 
+       docker tag newimage:latest deepakramamoorthy/reactapplicationdev:3.0
+       docker push deepakramamoorthy/reactapplicationdev:3.0
+       '''
+        } else {
+             echo "push to prod repo"
+   sh''''     
+	docker tag newimage:latest deepakramamoorthy/reactapplicationdev:3.0
+	docker push deepakramamoorthy/reactapplicationdev:3.0
+	'''
+        }
+            }  
+        
+        }
+
+            
+        }
+        
+        stage('deployToEKS') {
+                       steps {
+                withAWS(credentials: 'AWSCredentials') {
+                  script {
+                      echo "in"
+                    //sh ('aws eks update-kubeconfig --name <EKS_CLUSTER_NAME> --region <AWS_REGION>')
+                  //  sh "kubectl apply -f <K8S_DEPLOY_FILE>.yaml"
+                }
+                }
+        }
+
+            
+        }
+    }
+}
